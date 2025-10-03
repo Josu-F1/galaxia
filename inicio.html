@@ -100,6 +100,38 @@ canvas{display:block}
   height: 1px;
 }
 
+/* Fuegos artificiales dinámicos */
+.firework-shell {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.firework-particle {
+  position: fixed;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9997;
+}
+
+.particle-trail {
+  position: absolute;
+  width: 2px;
+  height: 15px;
+  background: linear-gradient(to bottom, currentColor, transparent);
+  border-radius: 50%;
+  top: -15px;
+  left: 0.5px;
+}
+
 .button-transform {
   animation: buttonToStar 0.8s ease-out forwards;
 }
@@ -173,6 +205,59 @@ canvas{display:block}
   100% {
     opacity: 0;
     transform: translateX(calc(100vw + 50px)) translateY(calc(-100vh - 50px)) scale(0);
+  }
+}
+
+@keyframes shootFast {
+  0% {
+    opacity: 1;
+    transform: translateX(-50px) translateY(50px) scale(0);
+  }
+  5% {
+    opacity: 1;
+    transform: translateX(-25px) translateY(25px) scale(1);
+  }
+  95% {
+    opacity: 1;
+    transform: translateX(calc(100vw + 25px)) translateY(calc(-100vh - 25px)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(100vw + 50px)) translateY(calc(-100vh - 50px)) scale(0);
+  }
+}
+
+@keyframes fireworkShell {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(-400px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-450px) scale(1.5);
+  }
+}
+
+@keyframes explodeParticle {
+  0% {
+    opacity: 1;
+    transform: scale(0);
+  }
+  10% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.2);
   }
 }
 
@@ -319,71 +404,132 @@ window.addEventListener("resize",()=>{
   renderer.setSize(window.innerWidth,window.innerHeight);
 });
 
-// Función para crear estrella fugaz
-function createShootingStar(size = 'normal', speed = 'normal') {
-  const star = document.createElement('div');
-  star.className = `shooting-star ${size}`;
+// Función para crear fuegos artificiales dinámicos con explosión
+function createDynamicFirework() {
+  // Crear la concha del fuego artificial
+  const shell = document.createElement('div');
+  shell.className = 'firework-shell';
   
-  // Posición inicial aleatoria
-  const startX = Math.random() * window.innerWidth * 0.4;
-  const startY = window.innerHeight * 0.6 + Math.random() * window.innerHeight * 0.4;
+  // Posición inicial en la parte inferior
+  const startX = 100 + Math.random() * (window.innerWidth - 200);
+  const startY = window.innerHeight;
   
-  star.style.left = startX + 'px';
-  star.style.top = startY + 'px';
+  shell.style.left = startX + 'px';
+  shell.style.top = startY + 'px';
+  shell.style.opacity = '1';
+  shell.style.animation = 'fireworkShell 1.5s ease-out forwards';
   
-  // Diferentes velocidades de animación
-  let animationName = 'shoot';
-  let duration = '1.5s';
+  document.body.appendChild(shell);
   
-  if (speed === 'slow') {
-    animationName = 'shootSlow';
-    duration = '2.5s';
-  } else if (speed === 'fast') {
-    animationName = 'shootFast';
-    duration = '0.8s';
-  }
-  
-  star.style.animation = `${animationName} ${duration} ease-out forwards`;
-  
-  document.body.appendChild(star);
-  
-  // Remover la estrella después de la animación
-  const removeTime = parseFloat(duration) * 1000;
+  // Después de 1.3 segundos, crear la explosión
   setTimeout(() => {
-    if (star.parentNode) {
-      star.parentNode.removeChild(star);
+    createFireworkExplosion(startX, startY - 400);
+    // Remover la concha
+    if (shell.parentNode) {
+      shell.parentNode.removeChild(shell);
     }
-  }, removeTime);
+  }, 1300);
 }
 
-// Función para crear lluvia de estrellas de fondo
-function createStarShower() {
-  // Crear estrellas de diferentes tamaños y velocidades
-  const starTypes = [
-    { size: 'small', speed: 'fast' },
-    { size: 'normal', speed: 'normal' },
-    { size: 'large', speed: 'slow' },
-    { size: 'small', speed: 'normal' },
-    { size: 'normal', speed: 'fast' }
+// Función para crear la explosión de partículas
+function createFireworkExplosion(x, y) {
+  const colors = [
+    '#ffffff', '#f0f0f0', '#e8e8e8', '#d0d0d0', 
+    '#c8c8c8', '#b8b8b8', '#ffffff', '#f8f8f8',
+    '#e0e0e0', '#d8d8d8', '#f5f5f5', '#eeeeee'
   ];
   
-  // Crear 15 estrellas con diferentes delays
-  for(let i = 0; i < 15; i++) {
+  // Crear entre 30-50 partículas para explosión más grande
+  const particleCount = 30 + Math.random() * 20;
+  
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'firework-particle';
+    
+    // Color blanco/plateado aleatorio
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.backgroundColor = color;
+    particle.style.color = color;
+    particle.style.boxShadow = `0 0 15px ${color}, 0 0 30px #ffffff`;
+    
+    // Agregar estela
+    const trail = document.createElement('div');
+    trail.className = 'particle-trail';
+    particle.appendChild(trail);
+    
+    // Posición inicial en el punto de explosión
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.opacity = '1';
+    
+    // Calcular dirección aleatoria
+    const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.5;
+    const velocity = 60 + Math.random() * 180; // Velocidad aumentada
+    const gravity = 0.4;
+    
+    const vx = Math.cos(angle) * velocity;
+    const vy = Math.sin(angle) * velocity;
+    
+    // Animación de la partícula
+    particle.style.animation = 'explodeParticle 3s ease-out forwards'; // Duración aumentada
+    
+    document.body.appendChild(particle);
+    
+    // Simular física de partículas
+    let currentX = x;
+    let currentY = y;
+    let currentVx = vx;
+    let currentVy = vy;
+    let time = 0;
+    
+    const animateParticle = () => {
+      time += 0.02;
+      currentX += currentVx * 0.02;
+      currentY += currentVy * 0.02;
+      currentVy += gravity;
+      
+      particle.style.left = currentX + 'px';
+      particle.style.top = currentY + 'px';
+      
+      if (time < 3 && currentY < window.innerHeight + 100) {
+        requestAnimationFrame(animateParticle);
+      } else {
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
+        }
+      }
+    };
+    
+    requestAnimationFrame(animateParticle);
+  }
+}
+
+// Función para crear lluvia de fuegos artificiales dinámicos
+function createStarShower() {
+  // Primera oleada - más fuegos artificiales dinámicos
+  for(let i = 0; i < 12; i++) {
     setTimeout(() => {
-      const starType = starTypes[Math.floor(Math.random() * starTypes.length)];
-      createShootingStar(starType.size, starType.speed);
-    }, i * 150);
+      createDynamicFirework();
+    }, i * 250);
   }
   
-  // Crear una segunda oleada después de 1 segundo
+  // Segunda oleada después de 2 segundos
   setTimeout(() => {
     for(let i = 0; i < 10; i++) {
       setTimeout(() => {
-        const starType = starTypes[Math.floor(Math.random() * starTypes.length)];
-        createShootingStar(starType.size, starType.speed);
-      }, i * 100);
+        createDynamicFirework();
+      }, i * 200);
     }
-  }, 1000);
+  }, 2000);
+  
+  // Tercera oleada después de 4 segundos
+  setTimeout(() => {
+    for(let i = 0; i < 8; i++) {
+      setTimeout(() => {
+        createDynamicFirework();
+      }, i * 180);
+    }
+  }, 4000);
 }
 
 // Función para ir a index.html con música automática
@@ -393,21 +539,14 @@ function startCelebration(){
   // Transformar el botón en estrella fugaz
   button.classList.add('button-transform');
   
-  // Crear la lluvia de estrellas de fondo
+  // Crear la lluvia de fuegos artificiales dinámicos
   createStarShower();
-  
-  // Crear estrellas principales después de que el botón se transforme
-  setTimeout(() => {
-    for(let i = 0; i < 8; i++) {
-      setTimeout(() => createShootingStar('large', 'normal'), i * 200);
-    }
-  }, 400);
   
   // Crear un elemento de audio temporal para activar autoplay
   const tempAudio = new Audio();
   tempAudio.src = "https://www.dropbox.com/scl/fi/r0px58eteqtzujnrqnqya/Ed-Sheeran-Perfect-Official-Music-Video.mp3?rlkey=eoxh34zl62a5mroqa1kzlawqi&st=sj1q4xcl&raw=1";
   
-  // Esperar un poco más para que se vea toda la animación
+  // Esperar 6 segundos para que se vean bien todas las explosiones
   setTimeout(() => {
     tempAudio.play().then(() => {
       // Si se puede reproducir, ir a la página principal
@@ -416,7 +555,7 @@ function startCelebration(){
       // Si no se puede, ir igual (el usuario podrá activar manualmente)
       window.location.href = 'index.html';
     });
-  }, 2000);
+  }, 6000);
 }
 
 // Animación principal
