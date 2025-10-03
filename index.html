@@ -3,37 +3,729 @@
 <head>
 <meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Feliz Cumple</title>
-<style>body,html{margin:0;height:100%;background:#000;overflow:hidden}canvas{display:block}.player{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:90%;max-width:600px;display:flex;align-items:center;gap:10px;padding:10px;border:2px solid #9370DB;border-radius:999px;background:0 0;box-shadow:0 0 15px #9370DB,0 0 30px #8A2BE2;z-index:1000;font-family:Arial,sans-serif;color:#fff;font-size:14px}.player button{background:0 0;border:none;color:#fff;font-size:22px;cursor:pointer;filter:drop-shadow(0 0 6px #DDA0DD);transition:transform .2s}.player button:hover{transform:scale(1.2);filter:drop-shadow(0 0 10px #9370DB)}.progress{flex-grow:1;height:14px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;cursor:pointer;position:relative}.progress-bar{height:100%;width:0%;background:linear-gradient(270deg,#9370DB,#8A2BE2,#DDA0DD,#9370DB);background-size:400% 400%;border-radius:999px;box-shadow:0 0 10px #9370DB;animation:flowing 6s ease infinite}@keyframes flowing{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}.time{min-width:74px;text-align:right;font-size:12px;color:#fff;text-shadow:0 0 5px #9370DB}</style>
+<title>Feliz Cumpleaños</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Pacifico&family=Bungee&display=swap" rel="stylesheet">
+<style>
+body,html{margin:0;height:100%;background:#000;overflow:hidden;font-family:Arial,sans-serif}
+canvas{display:block}
+.welcome-container{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  z-index:1000;
+}
+.welcome-text{
+  font-size:72px;
+  font-weight:400;
+  background: linear-gradient(45deg, #FFFFFF, #E6E6FA, #DDA0DD, #9370DB, #FFFFFF);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family:'Fredoka One', 'Pacifico', cursive;
+  text-shadow:3px 3px 0px #8A2BE2, 6px 6px 10px rgba(0,0,0,0.8);
+  margin-bottom:40px;
+  animation:glow 2s ease-in-out infinite alternate, gradient 3s ease infinite;
+  background:rgba(138,43,226,0.1);
+  padding:25px;
+  border-radius:25px;
+  backdrop-filter:blur(8px);
+  border:3px solid rgba(255,255,255,0.4);
+  letter-spacing:1px;
+  text-transform:none;
+  position:relative;
+}
+.start-button{
+  background:linear-gradient(45deg, #FFFFFF, #E6E6FA, #DDA0DD, #9370DB, #FFFFFF);
+  background-size: 300% 300%;
+  border:none;
+  color:#4B0082;
+  font-size:26px;
+  font-weight:bold;
+  font-family:'Fredoka One', cursive;
+  padding:22px 45px;
+  border-radius:50px;
+  cursor:pointer;
+  box-shadow:0 0 25px #DDA0DD, 0 0 45px #9370DB, 0 8px 15px rgba(0,0,0,0.3);
+  transition:all 0.3s ease;
+  text-transform:none;
+  letter-spacing:1px;
+  animation: buttonGradient 3s ease infinite;
+  border: 3px solid #FFFFFF;
+  text-shadow: 2px 2px 4px rgba(138,43,226,0.7);
+}
+.start-button:hover{
+  transform:scale(1.15) rotate(2deg);
+  box-shadow:0 0 35px #DDA0DD, 0 0 55px #9370DB, 0 0 70px #FFFFFF, 0 12px 25px rgba(0,0,0,0.4);
+  border: 3px solid #E6E6FA;
+  color:#2E0854;
+}
+@keyframes glow{
+  from{text-shadow:3px 3px 0px #8A2BE2, 6px 6px 10px rgba(0,0,0,0.8)}
+  to{text-shadow:3px 3px 0px #8A2BE2, 6px 6px 15px rgba(0,0,0,0.8), 0 0 30px #FFFFFF, 0 0 50px #DDA0DD}
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes buttonGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.shooting-star {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: linear-gradient(45deg, #ffffff, #DDA0DD, #9370DB);
+  border-radius: 50%;
+  box-shadow: 0 0 15px #ffffff, 0 0 30px #DDA0DD;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.shooting-star::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  right: 4px;
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(to right, rgba(255,255,255,0.8), rgba(221,160,221,0.4), transparent);
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+.shooting-star.large {
+  width: 8px;
+  height: 8px;
+  box-shadow: 0 0 25px #ffffff, 0 0 50px #DDA0DD;
+}
+
+.shooting-star.large::before {
+  width: 150px;
+  height: 3px;
+}
+
+.shooting-star.small {
+  width: 2px;
+  height: 2px;
+  box-shadow: 0 0 8px #ffffff, 0 0 15px #DDA0DD;
+}
+
+.shooting-star.small::before {
+  width: 60px;
+  height: 1px;
+}
+
+/* Fuegos artificiales dinámicos */
+.firework-shell {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+.firework-particle {
+  position: fixed;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9997;
+}
+
+.particle-trail {
+  position: absolute;
+  width: 2px;
+  height: 15px;
+  background: linear-gradient(to bottom, currentColor, transparent);
+  border-radius: 50%;
+  top: -15px;
+  left: 0.5px;
+}
+
+.button-transform {
+  animation: buttonToStar 0.8s ease-out forwards;
+}
+
+@keyframes buttonToStar {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shoot {
+  0% {
+    opacity: 1;
+    transform: translateX(-100px) translateY(100px) scale(0);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50px) translateY(50px) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateX(calc(100vw + 50px)) translateY(calc(-100vh - 50px)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(100vw + 100px)) translateY(calc(-100vh - 100px)) scale(0);
+  }
+}
+
+@keyframes shootSlow {
+  0% {
+    opacity: 0.8;
+    transform: translateX(-150px) translateY(150px) scale(0);
+  }
+  10% {
+    opacity: 0.8;
+    transform: translateX(-75px) translateY(75px) scale(1);
+  }
+  90% {
+    opacity: 0.8;
+    transform: translateX(calc(100vw + 75px)) translateY(calc(-100vh - 75px)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(100vw + 150px)) translateY(calc(-100vh - 150px)) scale(0);
+  }
+}
+
+@keyframes shootFast {
+  0% {
+    opacity: 1;
+    transform: translateX(-50px) translateY(50px) scale(0);
+  }
+  5% {
+    opacity: 1;
+    transform: translateX(-25px) translateY(25px) scale(1);
+  }
+  95% {
+    opacity: 1;
+    transform: translateX(calc(100vw + 25px)) translateY(calc(-100vh - 25px)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(100vw + 50px)) translateY(calc(-100vh - 50px)) scale(0);
+  }
+}
+
+@keyframes shootFast {
+  0% {
+    opacity: 1;
+    transform: translateX(-50px) translateY(50px) scale(0);
+  }
+  5% {
+    opacity: 1;
+    transform: translateX(-25px) translateY(25px) scale(1);
+  }
+  95% {
+    opacity: 1;
+    transform: translateX(calc(100vw + 25px)) translateY(calc(-100vh - 25px)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(100vw + 50px)) translateY(calc(-100vh - 50px)) scale(0);
+  }
+}
+
+@keyframes fireworkShell {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(-400px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-450px) scale(1.5);
+  }
+}
+
+@keyframes explodeParticle {
+  0% {
+    opacity: 1;
+    transform: scale(0);
+  }
+  10% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+}
+
+/* Transición suave entre páginas */
+.page-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(0,0,0,0.9), rgba(75,0,130,0.8), rgba(138,43,226,0.7));
+  opacity: 0;
+  z-index: 10000;
+  pointer-events: none;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.page-transition.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.transition-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Fredoka One', cursive;
+  font-size: 48px;
+  color: #FFFFFF;
+  text-shadow: 0 0 20px #DDA0DD, 0 0 40px #9370DB;
+  opacity: 0;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+@media (max-width: 768px) {
+  .welcome-text{font-size:36px}
+  .start-button{font-size:18px; padding:15px 30px}
+}
+</style>
 </head>
 <body>
 <canvas id=c></canvas>
-<div class=player>
-<button id=play>▶️</button>
-<div class=progress id=progress><div class=progress-bar id=progress-bar></div></div>
-<div class=time id=time>0:00 / 0:00</div>
-</div>
-<audio id=audio loop autoplay>
-<source src="https://www.dropbox.com/scl/fi/r0px58eteqtzujnrqnqya/Ed-Sheeran-Perfect-Official-Music-Video.mp3?rlkey=eoxh34zl62a5mroqa1kzlawqi&st=sj1q4xcl&raw=1" type=audio/mpeg>
-</audio>
-<script src=https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.min.js></script>
-<script>const audio=document.getElementById("audio"),playBtn=document.getElementById("play"),progress=document.getElementById("progress"),progressBar=document.getElementById("progress-bar"),timeDisplay=document.getElementById("time");let isPlaying=!1;function formatTime(e){if(!isFinite(e))return"0:00";return Math.floor(e/60)+":"+Math.floor(e%60).toString().padStart(2,"0")}playBtn.addEventListener("click",(async()=>{isPlaying?(audio.pause(),playBtn.textContent="▶️"):(await audio.play(),playBtn.textContent="⏸️"),isPlaying=!isPlaying})),audio.addEventListener("timeupdate",(()=>{const e=audio.currentTime/audio.duration*100;progressBar.style.width=(isFinite(e)?e:0)+"%",timeDisplay.textContent=formatTime(audio.currentTime)+" / "+formatTime(audio.duration)})),progress.addEventListener("click",(e=>{const t=progress.getBoundingClientRect(),n=(e.clientX-t.left)/t.width;isFinite(audio.duration)&&(audio.currentTime=n*audio.duration)}));document.addEventListener("DOMContentLoaded",(()=>{audio.currentTime = 17; audio.play().then((()=>{playBtn.textContent="⏸️",isPlaying=!0})).catch((()=>{document.addEventListener("click",(()=>{audio.currentTime = 17; audio.play().then((()=>{playBtn.textContent="⏸️",isPlaying=!0}))}),{once:!0})}))}));const canvas=document.getElementById("c"),renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:!0});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2)),renderer.setSize(innerWidth,innerHeight);const scene=new THREE.Scene,camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,5e3);let targetDist=300,currentDist=300,rotX=.2,rotY=0;const loader=new THREE.TextureLoader,nebulaTex=loader.load("https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/cube/space/px.jpg");scene.background=nebulaTex,function(e=2e3,t=3e3){const n=new THREE.BufferGeometry,a=new Float32Array(3*e);for(let n=0;n<e;n++){const e=t*(.3+.7*Math.random()),r=Math.random()*Math.PI*2,i=Math.acos(2*Math.random()-1);a[3*n+0]=e*Math.sin(i)*Math.cos(r),a[3*n+1]=e*Math.cos(i),a[3*n+2]=e*Math.sin(i)*Math.sin(r)}n.setAttribute("position",new THREE.BufferAttribute(a,3)),scene.add(new THREE.Points(n,new THREE.PointsMaterial({size:1.5,color:16777215,depthWrite:!1})))}();const coreMat=new THREE.MeshPhongMaterial({color:1118481,transparent:!0,opacity:.6,shininess:200}),core=new THREE.Mesh(new THREE.SphereGeometry(40,64,64),coreMat);function makeCenterTextTexture(e){const t=document.createElement("canvas");t.width=512,t.height=512;const n=t.getContext("2d");return n.clearRect(0,0,t.width,t.height),n.font="bold 80px Arial",n.textAlign="center",n.textBaseline="middle",n.fillStyle="#9370DB",n.shadowColor="#DDA0DD",n.shadowBlur=50,n.fillText(e,t.width/2,t.height/2),new THREE.CanvasTexture(t)}scene.add(core);const centerTex=makeCenterTextTexture("FELIZ CUMPLE! 🎂"),centerMat=new THREE.SpriteMaterial({map:centerTex,transparent:!0}),centerSprite=new THREE.Sprite(centerMat);function makeGlow(e=768,t="147,112,219",n="138,43,226"){const a=document.createElement("canvas");a.width=a.height=e;const r=a.getContext("2d"),i=r.createRadialGradient(e/2,e/2,.05*e,e/2,e/2,.5*e);return i.addColorStop(0,"rgba("+t+",0.9)"),i.addColorStop(.5,"rgba("+n+",0.5)"),i.addColorStop(1,"rgba(0,0,0,0)"),r.fillStyle=i,r.fillRect(0,0,e,e),new THREE.CanvasTexture(a)}centerSprite.scale.set(60,60,1),centerSprite.position.set(0,0,0),centerSprite.renderOrder=999,scene.add(centerSprite);const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlow(),transparent:!0,depthWrite:!1}));function ringTexture(e=768){const t=document.createElement("canvas");t.width=t.height=e;const n=t.getContext("2d");n.translate(e/2,e/2);const a=.34*e,r=.49*e,i=n.createRadialGradient(0,0,.3*a,0,0,r);return i.addColorStop(0,"rgba(255,255,255,1)"),i.addColorStop(.3,"rgba(221,160,221,0.9)"),i.addColorStop(.65,"rgba(147,112,219,0.6)"),i.addColorStop(1,"rgba(0,0,0,0)"),n.fillStyle=i,n.beginPath(),n.arc(0,0,r,0,2*Math.PI),n.arc(0,0,a,0,2*Math.PI,!0),n.closePath(),n.fill(),new THREE.CanvasTexture(t)}glow.scale.set(500,500,1),scene.add(glow);const ring1=new THREE.Mesh(new THREE.RingGeometry(60,80,128),new THREE.MeshBasicMaterial({map:ringTexture(),transparent:!0,side:THREE.DoubleSide})),ring2=new THREE.Mesh(new THREE.RingGeometry(85,100,128),new THREE.MeshBasicMaterial({map:ringTexture(),transparent:!0,side:THREE.DoubleSide,opacity:.6}));ring1.rotation.x=ring2.rotation.x=Math.PI/2,scene.add(ring1),scene.add(ring2);const WORDS=[],baseWords=["🎂 Feliz cumpleaños¡¡","🎉 Tu día especial","🎈 Cumpleañera","🎁 Para ti Hermosa","🎉 Tu celebración","🌟Ten Un Día perfecto","👑 Reina del día","🎀 Princesa cumpleañera","💖 Que seas feliz","✨ Día Unico","🦋 Vuela alto","✨ Brilla siempre","🎵 Canta de alegría","🌸 Ardillita Hermosa","🍰 Dulce niña","💫 Tu momento de brilla","🌺 Hermosa chica","💫 Estrella birthday","🎪 Salitoo¡¡","🌙 Noche especial","🎨 Mi niña¡¡","🎵 Melodía feliz","🎈 Globos al cielo","🍭 Dulce como tú","☀️ Sol radiante","💎 Joya preciosa","🎊 Salitoo¡¡","🌻 Flor del día","🎁 Regalo perfecto","🎂 Velas brillantes","🦄 Salitoo Hermosa","🌟 Luz brillante","💝 Con mucho amor","🎉 Happy Birthday","🌈 Día feliz","🎀 Lazo perfecto","💖 Corazón contento","😊 Felicidad pura","🌸 Pétalo suave","🎊 Celebra grande","🧁 Pastel delicioso","🎵 Canción bonita","🌺 Belleza natural","💫 Magia real","💝 Sorpresa linda","👑 Corona especial","🦋 Salitoo","🌻 Sonrie mucho¡¡"];for(let e=0;e<6;e++)WORDS.push(...baseWords);function makeTextTexture(e,t){const n=document.createElement("canvas");n.width=1024,n.height=256;const a=n.getContext("2d");return a.clearRect(0,0,n.width,n.height),a.font="bold 48px Arial",a.textAlign="center",a.textBaseline="middle",a.fillStyle="#fff",a.shadowColor=t,a.shadowBlur=30,a.fillText(e,n.width/2,n.height/2),new THREE.CanvasTexture(n)}const COLORS=["#DDA0DD","#DA70D6","#EE82EE","#BA55D3","#9370DB","#8A2BE2","#9932CC","#8B008B","#E6E6FA","#D8BFD8"],textGroup=new THREE.Group;scene.add(textGroup);for(let e=0;e<WORDS.length;e++){const t=makeTextTexture(WORDS[e],COLORS[e%COLORS.length]),n=new THREE.SpriteMaterial({map:t,transparent:!0}),a=new THREE.Sprite(n);a.scale.set(120,30,1);const r=Math.acos(2*Math.random()-1),i=Math.random()*Math.PI*2,o=120+80*Math.random();a.position.set(o*Math.sin(r)*Math.cos(i),o*Math.cos(r),o*Math.sin(r)*Math.sin(i)),a.userData={phi:r,theta:i,radius:o,speed:.001+.001*Math.random()},textGroup.add(a)}
 
-const PHOTO_URLS=["https://i.postimg.cc/0yMQdt7d/1.jpg","https://i.postimg.cc/x1wdsKPy/10.jpg","https://i.postimg.cc/nhjzYdq4/2.jpg","https://i.postimg.cc/YCG9fXQN/3.jpg","https://i.postimg.cc/Qd9tk6cJ/4.jpg","https://i.postimg.cc/FHMKPjxS/5.jpg","https://i.postimg.cc/13kzWpKV/6.jpg","https://i.postimg.cc/8z2CyhbR/8.jpg","https://i.postimg.cc/6pkQHdhd/9.jpg","https://i.postimg.cc/x1wdsKPM/7.jpg"];
-const photoGroup=new THREE.Group;scene.add(photoGroup);
-PHOTO_URLS.forEach((url,index)=>{
-  const photoLoader=new THREE.TextureLoader();
-  photoLoader.load(url,(texture)=>{
-    const photoMaterial=new THREE.SpriteMaterial({map:texture,transparent:!0});
-    const photoSprite=new THREE.Sprite(photoMaterial);
-    photoSprite.scale.set(60,60,1);
-    const phi=Math.acos(2*Math.random()-1);
+<!-- Overlay para transición suave -->
+<div class="page-transition" id="pageTransition">
+  <div class="transition-text">
+    ✨ Preparando tu sorpresa... ✨
+  </div>
+</div>
+
+<div class=welcome-container>
+  <div class=welcome-text>
+    🎉 Happy Birthday 🎉<br>
+    ¡Mi Estrella Favorita! ⭐
+  </div>
+  <button class=start-button onclick="startCelebration()">
+    🎂 ¡Comenzar Fiesta! ⭐
+  </button>
+</div>
+
+<script src=https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.min.js></script>
+<script>
+const canvas=document.getElementById("c"),renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:!0});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2)),renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene,camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,5e3);
+let targetDist=400,currentDist=400,rotX=.1,rotY=0;
+
+const loader=new THREE.TextureLoader;
+// Fondo espacial con alternativa de respaldo
+const nebulaTex=loader.load(
+  "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/cube/space/px.jpg",
+  function(texture){
+    scene.background=texture;
+  },
+  undefined,
+  function(error){
+    // Crear fondo de estrellas como respaldo
+    const canvas=document.createElement('canvas');
+    canvas.width=canvas.height=1024;
+    const ctx=canvas.getContext('2d');
+    const gradient=ctx.createRadialGradient(512,512,0,512,512,512);
+    gradient.addColorStop(0,'#001122');
+    gradient.addColorStop(0.5,'#000611');
+    gradient.addColorStop(1,'#000000');
+    ctx.fillStyle=gradient;
+    ctx.fillRect(0,0,1024,1024);
+    
+    // Agregar estrellas al canvas
+    ctx.fillStyle='#ffffff';
+    for(let i=0;i<200;i++){
+      const x=Math.random()*1024;
+      const y=Math.random()*1024;
+      const size=Math.random()*2;
+      ctx.beginPath();
+      ctx.arc(x,y,size,0,Math.PI*2);
+      ctx.fill();
+    }
+    
+    const fallbackTexture=new THREE.CanvasTexture(canvas);
+    scene.background=fallbackTexture;
+  }
+);
+
+// Estrellas de fondo
+function createStars(count=3000,radius=4000){
+  const geometry=new THREE.BufferGeometry;
+  const positions=new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    const r=radius*(.2+.8*Math.random());
     const theta=Math.random()*Math.PI*2;
-    const radius=180+100*Math.random();
-    photoSprite.position.set(radius*Math.sin(phi)*Math.cos(theta),radius*Math.cos(phi),radius*Math.sin(phi)*Math.sin(theta));
-    photoSprite.userData={phi:phi,theta:theta,radius:radius,speed:0.0006+0.0004*Math.random()};
-    photoGroup.add(photoSprite);
-  });
-});let dragging=!1,lastX=0,lastY=0;function onDown(e){dragging=!0;const t=e.touches?e.touches[0]:e;lastX=t.clientX,lastY=t.clientY}function onMove(e){if(!dragging)return;const t=e.touches?e.touches[0]:e,n=(t.clientX-lastX)/innerWidth,a=(t.clientY-lastY)/innerHeight;rotY-=3*n,rotX=Math.max(-1.2,Math.min(1.2,rotX-2.2*a)),lastX=t.clientX,lastY=t.clientY}function onUp(){dragging=!1}addEventListener("mousedown",onDown),addEventListener("mousemove",onMove),addEventListener("mouseup",onUp),addEventListener("touchstart",onDown,{passive:!0}),addEventListener("touchmove",onMove,{passive:!0}),addEventListener("touchend",onUp,{passive:!0}),addEventListener("wheel",(e=>{targetDist+=.25*e.deltaY,targetDist=Math.max(160,Math.min(600,targetDist))}),{passive:!0});let pinch=0;addEventListener("touchmove",(e=>{if(e.touches&&2===e.touches.length){e.preventDefault();const t=e.touches[0].clientX-e.touches[1].clientX,n=e.touches[0].clientY-e.touches[1].clientY,a=Math.hypot(t,n);pinch&&(targetDist+=.5*(pinch-a),targetDist=Math.max(160,Math.min(600,targetDist))),pinch=a}}),{passive:!1}),addEventListener("touchend",(()=>{pinch=0}),{passive:!0});let t=0;function tick(){requestAnimationFrame(tick),t+=.01,ring1.rotation.z+=.002,ring2.rotation.z-=.0015,glow.scale.set(500*(1+.03*Math.sin(.4*t)),500*(1+.03*Math.sin(.4*t)),1);const e=1+.05*Math.sin(3*t);core.scale.set(e,e,e),textGroup.children.forEach((e=>{e.material.opacity=.8+.2*Math.sin(2*t),e.userData.theta+=e.userData.speed,e.position.x=e.userData.radius*Math.sin(e.userData.phi)*Math.cos(e.userData.theta),e.position.z=e.userData.radius*Math.sin(e.userData.phi)*Math.sin(e.userData.theta)})),photoGroup.children.forEach((e=>{e.material.opacity=.9+.1*Math.sin(1.5*t),e.userData.theta+=e.userData.speed,e.position.x=e.userData.radius*Math.sin(e.userData.phi)*Math.cos(e.userData.theta),e.position.z=e.userData.radius*Math.sin(e.userData.phi)*Math.sin(e.userData.theta)})),currentDist+=.06*(targetDist-currentDist);const n=Math.cos(rotX),a=Math.sin(rotX),r=Math.cos(rotY),i=Math.sin(rotY);camera.position.set(currentDist*i*n,currentDist*a,currentDist*r*n),camera.lookAt(0,0,0),renderer.render(scene,camera)}tick()</script>
+    const phi=Math.acos(2*Math.random()-1);
+    positions[i*3]=r*Math.sin(phi)*Math.cos(theta);
+    positions[i*3+1]=r*Math.cos(phi);
+    positions[i*3+2]=r*Math.sin(phi)*Math.sin(theta);
+  }
+  geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
+  scene.add(new THREE.Points(geometry,new THREE.PointsMaterial({size:2,color:16777215,depthWrite:!1})));
+}
+createStars();
+
+// Núcleo central brillante
+const coreMat=new THREE.MeshPhongMaterial({color:0x111199,transparent:!0,opacity:.4,shininess:300});
+const core=new THREE.Mesh(new THREE.SphereGeometry(60,64,64),coreMat);
+scene.add(core);
+
+// Resplandor
+function makeGlow(size=1024,color1="147,112,219",color2="138,43,226"){
+  const canvas=document.createElement("canvas");
+  canvas.width=canvas.height=size;
+  const ctx=canvas.getContext("2d");
+  const gradient=ctx.createRadialGradient(size/2,size/2,size*.05,size/2,size/2,size*.5);
+  gradient.addColorStop(0,"rgba("+color1+",0.8)");
+  gradient.addColorStop(.5,"rgba("+color2+",0.4)");
+  gradient.addColorStop(1,"rgba(0,0,0,0)");
+  ctx.fillStyle=gradient;
+  ctx.fillRect(0,0,size,size);
+  return new THREE.CanvasTexture(canvas);
+}
+
+const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlow(),transparent:!0,depthWrite:!1}));
+glow.scale.set(800,800,1);
+scene.add(glow);
+
+// Anillos giratorios
+function ringTexture(size=768){
+  const canvas=document.createElement("canvas");
+  canvas.width=canvas.height=size;
+  const ctx=canvas.getContext("2d");
+  ctx.translate(size/2,size/2);
+  const innerR=size*.3;
+  const outerR=size*.48;
+  const gradient=ctx.createRadialGradient(0,0,innerR*.3,0,0,outerR);
+  gradient.addColorStop(0,"rgba(255,255,255,1)");
+  gradient.addColorStop(.3,"rgba(221,160,221,0.9)");
+  gradient.addColorStop(.65,"rgba(147,112,219,0.6)");
+  gradient.addColorStop(1,"rgba(0,0,0,0)");
+  ctx.fillStyle=gradient;
+  ctx.beginPath();
+  ctx.arc(0,0,outerR,0,Math.PI*2);
+  ctx.arc(0,0,innerR,0,Math.PI*2,!0);
+  ctx.closePath();
+  ctx.fill();
+  return new THREE.CanvasTexture(canvas);
+}
+
+const ring1=new THREE.Mesh(new THREE.RingGeometry(80,120,128),new THREE.MeshBasicMaterial({map:ringTexture(),transparent:!0,side:THREE.DoubleSide}));
+const ring2=new THREE.Mesh(new THREE.RingGeometry(140,180,128),new THREE.MeshBasicMaterial({map:ringTexture(),transparent:!0,side:THREE.DoubleSide,opacity:.5}));
+ring1.rotation.x=ring2.rotation.x=Math.PI/2;
+scene.add(ring1);
+scene.add(ring2);
+
+// Movimiento de mouse suave
+let mouseX=0,mouseY=0;
+document.addEventListener("mousemove",(e)=>{
+  mouseX=(e.clientX/window.innerWidth-0.5)*0.1;
+  mouseY=(e.clientY/window.innerHeight-0.5)*0.1;
+});
+
+// Redimensionar
+window.addEventListener("resize",()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+// Función para crear fuegos artificiales dinámicos con explosión
+function createDynamicFirework() {
+  // Crear la concha del fuego artificial
+  const shell = document.createElement('div');
+  shell.className = 'firework-shell';
+  
+  // Posición inicial en la parte inferior
+  const startX = 100 + Math.random() * (window.innerWidth - 200);
+  const startY = window.innerHeight;
+  
+  shell.style.left = startX + 'px';
+  shell.style.top = startY + 'px';
+  shell.style.opacity = '1';
+  shell.style.animation = 'fireworkShell 1.5s ease-out forwards';
+  
+  document.body.appendChild(shell);
+  
+  // Después de 1.3 segundos, crear la explosión
+  setTimeout(() => {
+    createFireworkExplosion(startX, startY - 400);
+    // Remover la concha
+    if (shell.parentNode) {
+      shell.parentNode.removeChild(shell);
+    }
+  }, 1300);
+}
+
+// Función para crear sonidos de explosión
+function playExplosionSound() {
+  try {
+    // Crear el elemento de audio con el sonido de fuegos artificiales
+    const fireworkAudio = new Audio();
+    fireworkAudio.src = "https://www.dropbox.com/scl/fi/d02llr3d4l2y0qsp0olf3/fireworks-107116.mp3?rlkey=ikpd3fpoj1mt4ys2w3z3x8xfz&st=pc3rhkbq&raw=1";
+    fireworkAudio.volume = 0.9; // Volumen alto para mayor impacto
+    fireworkAudio.currentTime = 3.3; // Empezar desde 2.8 segundos para sincronizar mejor
+    
+    // Reproducir el sonido
+    fireworkAudio.play().catch(error => {
+      console.log('No se pudo reproducir el sonido de fuegos artificiales:', error);
+      
+      // Fallback: crear sonido sintético si no se puede cargar el archivo
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(80, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(20, audioContext.currentTime + 0.2);
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      } catch (fallbackError) {
+        console.log('Tampoco se pudo crear el sonido sintético:', fallbackError);
+      }
+    });
+    
+  } catch (error) {
+    console.log('Error al crear el sonido:', error);
+  }
+}
+
+// Función para crear la explosión de partículas
+function createFireworkExplosion(x, y) {
+  // Reproducir sonido de explosión
+  try {
+    playExplosionSound();
+  } catch (e) {
+    console.log('No se pudo reproducir el sonido:', e);
+  }
+  
+  const colors = [
+    '#FFFFFF', '#E6E6FA', '#DDA0DD', '#D8BFD8', 
+    '#DA70D6', '#BA55D3', '#9370DB', '#8A2BE2',
+    '#F8F8FF', '#F0F8FF', '#E0E6F8', '#D6D6FA'
+  ];
+  
+  // Crear entre 30-50 partículas para explosión más grande
+  const particleCount = 30 + Math.random() * 20;
+  
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'firework-particle';
+    
+    // Color blanco/plateado aleatorio
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.backgroundColor = color;
+    particle.style.color = color;
+    particle.style.boxShadow = `0 0 15px ${color}, 0 0 30px #ffffff`;
+    
+    // Agregar estela
+    const trail = document.createElement('div');
+    trail.className = 'particle-trail';
+    particle.appendChild(trail);
+    
+    // Posición inicial en el punto de explosión
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.opacity = '1';
+    
+    // Calcular dirección aleatoria
+    const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.5;
+    const velocity = 60 + Math.random() * 180; // Velocidad aumentada
+    const gravity = 0.4;
+    
+    const vx = Math.cos(angle) * velocity;
+    const vy = Math.sin(angle) * velocity;
+    
+    // Animación de la partícula
+    particle.style.animation = 'explodeParticle 3s ease-out forwards'; // Duración aumentada
+    
+    document.body.appendChild(particle);
+    
+    // Simular física de partículas
+    let currentX = x;
+    let currentY = y;
+    let currentVx = vx;
+    let currentVy = vy;
+    let time = 0;
+    
+    const animateParticle = () => {
+      time += 0.02;
+      currentX += currentVx * 0.02;
+      currentY += currentVy * 0.02;
+      currentVy += gravity;
+      
+      particle.style.left = currentX + 'px';
+      particle.style.top = currentY + 'px';
+      
+      if (time < 3 && currentY < window.innerHeight + 100) {
+        requestAnimationFrame(animateParticle);
+      } else {
+        if (particle.parentNode) {
+          particle.parentNode.removeChild(particle);
+        }
+      }
+    };
+    
+    requestAnimationFrame(animateParticle);
+  }
+}
+
+// Función para crear lluvia de fuegos artificiales dinámicos
+function createStarShower() {
+  // Primera oleada - más fuegos artificiales dinámicos
+  for(let i = 0; i < 12; i++) {
+    setTimeout(() => {
+      createDynamicFirework();
+    }, i * 250);
+  }
+  
+  // Segunda oleada después de 2 segundos
+  setTimeout(() => {
+    for(let i = 0; i < 10; i++) {
+      setTimeout(() => {
+        createDynamicFirework();
+      }, i * 200);
+    }
+  }, 2000);
+  
+  // Tercera oleada después de 4 segundos
+  setTimeout(() => {
+    for(let i = 0; i < 8; i++) {
+      setTimeout(() => {
+        createDynamicFirework();
+      }, i * 180);
+    }
+  }, 4000);
+}
+
+// Función para ir a index.html con música automática
+function startCelebration(){
+  const button = document.querySelector('.start-button');
+  const transition = document.getElementById('pageTransition');
+  
+  // Transformar el botón en estrella fugaz
+  button.classList.add('button-transform');
+  
+  // Crear la lluvia de fuegos artificiales dinámicos
+  createStarShower();
+  
+  // Crear un elemento de audio temporal para activar autoplay
+  const tempAudio = new Audio();
+  tempAudio.src = "https://www.dropbox.com/scl/fi/r0px58eteqtzujnrqnqya/Ed-Sheeran-Perfect-Official-Music-Video.mp3?rlkey=eoxh34zl62a5mroqa1kzlawqi&st=sj1q4xcl&raw=1";
+  
+  // Esperar 4 segundos para que se vean bien las explosiones, luego iniciar transición
+  setTimeout(() => {
+    // Mostrar la transición suave
+    transition.classList.add('active');
+    
+    // Después de 2 segundos más (para ver la transición), ir a la siguiente página
+    setTimeout(() => {
+      tempAudio.play().then(() => {
+        // Si se puede reproducir, ir a la página principal
+        window.location.href = 'inicio.html';
+      }).catch(() => {
+        // Si no se puede, ir igual (el usuario podrá activar manualmente)
+        window.location.href = 'inicio.html';
+      });
+    }, 2000);
+  }, 4000);
+}
+
+// Animación principal
+let time=0;
+function animate(){
+  requestAnimationFrame(animate);
+  time+=0.01;
+  
+  // Rotación de anillos
+  ring1.rotation.z+=0.003;
+  ring2.rotation.z-=0.002;
+  
+  // Pulsación del resplandor
+  const glowScale=800*(1+0.1*Math.sin(time*0.5));
+  glow.scale.set(glowScale,glowScale,1);
+  
+  // Pulsación del núcleo
+  const coreScale=1+0.08*Math.sin(time*1.5);
+  core.scale.set(coreScale,coreScale,coreScale);
+  
+  // Movimiento suave de cámara
+  rotY+=mouseX*0.02;
+  rotX+=mouseY*0.02;
+  rotX=Math.max(-0.5,Math.min(0.5,rotX));
+  
+  // Rotación automática suave
+  rotY+=0.001;
+  
+  const cosRotX=Math.cos(rotX);
+  const sinRotX=Math.sin(rotX);
+  const cosRotY=Math.cos(rotY);
+  const sinRotY=Math.sin(rotY);
+  
+  camera.position.set(
+    currentDist*sinRotY*cosRotX,
+    currentDist*sinRotX,
+    currentDist*cosRotY*cosRotX
+  );
+  camera.lookAt(0,0,0);
+  
+  renderer.render(scene,camera);
+}
+animate();
+</script>
 </body>
 </html>
