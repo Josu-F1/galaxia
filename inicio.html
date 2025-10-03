@@ -285,6 +285,45 @@ canvas{display:block}
   }
 }
 
+/* Transición suave entre páginas */
+.page-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(0,0,0,0.9), rgba(75,0,130,0.8), rgba(138,43,226,0.7));
+  opacity: 0;
+  z-index: 10000;
+  pointer-events: none;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.page-transition.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.transition-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Fredoka One', cursive;
+  font-size: 48px;
+  color: #FFFFFF;
+  text-shadow: 0 0 20px #DDA0DD, 0 0 40px #9370DB;
+  opacity: 0;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+
 @media (max-width: 768px) {
   .welcome-text{font-size:36px}
   .start-button{font-size:18px; padding:15px 30px}
@@ -293,6 +332,14 @@ canvas{display:block}
 </head>
 <body>
 <canvas id=c></canvas>
+
+<!-- Overlay para transición suave -->
+<div class="page-transition" id="pageTransition">
+  <div class="transition-text">
+    ✨ Preparando tu sorpresa... ✨
+  </div>
+</div>
+
 <div class=welcome-container>
   <div class=welcome-text>
     🎉 Happy Birthday 🎉<br>
@@ -455,8 +502,57 @@ function createDynamicFirework() {
   }, 1300);
 }
 
+// Función para crear sonidos de explosión
+function playExplosionSound() {
+  try {
+    // Crear el elemento de audio con el sonido de fuegos artificiales
+    const fireworkAudio = new Audio();
+    fireworkAudio.src = "https://www.dropbox.com/scl/fi/d02llr3d4l2y0qsp0olf3/fireworks-107116.mp3?rlkey=ikpd3fpoj1mt4ys2w3z3x8xfz&st=pc3rhkbq&raw=1";
+    fireworkAudio.volume = 0.9; // Volumen alto para mayor impacto
+    fireworkAudio.currentTime = 3.3; // Empezar desde 2.8 segundos para sincronizar mejor
+    
+    // Reproducir el sonido
+    fireworkAudio.play().catch(error => {
+      console.log('No se pudo reproducir el sonido de fuegos artificiales:', error);
+      
+      // Fallback: crear sonido sintético si no se puede cargar el archivo
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(80, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(20, audioContext.currentTime + 0.2);
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      } catch (fallbackError) {
+        console.log('Tampoco se pudo crear el sonido sintético:', fallbackError);
+      }
+    });
+    
+  } catch (error) {
+    console.log('Error al crear el sonido:', error);
+  }
+}
+
 // Función para crear la explosión de partículas
 function createFireworkExplosion(x, y) {
+  // Reproducir sonido de explosión
+  try {
+    playExplosionSound();
+  } catch (e) {
+    console.log('No se pudo reproducir el sonido:', e);
+  }
+  
   const colors = [
     '#FFFFFF', '#E6E6FA', '#DDA0DD', '#D8BFD8', 
     '#DA70D6', '#BA55D3', '#9370DB', '#8A2BE2',
@@ -559,6 +655,7 @@ function createStarShower() {
 // Función para ir a index.html con música automática
 function startCelebration(){
   const button = document.querySelector('.start-button');
+  const transition = document.getElementById('pageTransition');
   
   // Transformar el botón en estrella fugaz
   button.classList.add('button-transform');
@@ -570,16 +667,22 @@ function startCelebration(){
   const tempAudio = new Audio();
   tempAudio.src = "https://www.dropbox.com/scl/fi/r0px58eteqtzujnrqnqya/Ed-Sheeran-Perfect-Official-Music-Video.mp3?rlkey=eoxh34zl62a5mroqa1kzlawqi&st=sj1q4xcl&raw=1";
   
-  // Esperar 6 segundos para que se vean bien todas las explosiones
+  // Esperar 4 segundos para que se vean bien las explosiones, luego iniciar transición
   setTimeout(() => {
-    tempAudio.play().then(() => {
-      // Si se puede reproducir, ir a la página principal
-      window.location.href = 'index.html';
-    }).catch(() => {
-      // Si no se puede, ir igual (el usuario podrá activar manualmente)
-      window.location.href = 'index.html';
-    });
-  }, 6000);
+    // Mostrar la transición suave
+    transition.classList.add('active');
+    
+    // Después de 2 segundos más (para ver la transición), ir a la siguiente página
+    setTimeout(() => {
+      tempAudio.play().then(() => {
+        // Si se puede reproducir, ir a la página principal
+        window.location.href = 'index.html';
+      }).catch(() => {
+        // Si no se puede, ir igual (el usuario podrá activar manualmente)
+        window.location.href = 'index.html';
+      });
+    }, 2000);
+  }, 4000);
 }
 
 // Animación principal
