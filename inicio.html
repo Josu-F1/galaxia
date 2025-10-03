@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang=es>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Feliz Cumpleaños</title>
+<style>
+body,html{margin:0;height:100%;background:#000;overflow:hidden;font-family:Arial,sans-serif}
+canvas{display:block}
+.welcome-container{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  z-index:1000;
+}
+.welcome-text{
+  font-size:60px;
+  font-weight:bold;
+  color:#ff0033;
+  text-shadow:0 0 10px #000, 0 0 20px #ff66aa, 0 0 40px #ff66aa, 0 0 60px #ff66aa, 0 0 80px #ff0033;
+  margin-bottom:40px;
+  animation:glow 2s ease-in-out infinite alternate;
+  background:rgba(0,0,0,0.3);
+  padding:20px;
+  border-radius:20px;
+  backdrop-filter:blur(5px);
+  border:2px solid rgba(255,102,170,0.3);
+}
+.start-button{
+  background:linear-gradient(45deg, #ff6600, #ff3300, #ff6600);
+  border:none;
+  color:#fff;
+  font-size:24px;
+  font-weight:bold;
+  padding:20px 40px;
+  border-radius:50px;
+  cursor:pointer;
+  box-shadow:0 0 20px #ff6600, 0 0 40px #ff3300;
+  transition:all 0.3s ease;
+  text-transform:uppercase;
+  letter-spacing:2px;
+}
+.start-button:hover{
+  transform:scale(1.1);
+  box-shadow:0 0 30px #ff6600, 0 0 60px #ff3300;
+}
+@keyframes glow{
+  from{text-shadow:0 0 10px #000, 0 0 20px #ff66aa, 0 0 40px #ff66aa, 0 0 60px #ff66aa, 0 0 80px #ff0033}
+  to{text-shadow:0 0 15px #000, 0 0 30px #ff66aa, 0 0 60px #ff66aa, 0 0 90px #ff66aa, 0 0 120px #ff0033}
+}
+@media (max-width: 768px) {
+  .welcome-text{font-size:36px}
+  .start-button{font-size:18px; padding:15px 30px}
+}
+</style>
+</head>
+<body>
+<canvas id=c></canvas>
+<div class=welcome-container>
+  <div class=welcome-text>
+    Feliz cumpleaños<br>
+    a mi estrella favorita ✨
+  </div>
+  <button class=start-button onclick="window.location.href='index.html'">
+    🎂 Comenzar Celebración 🎂
+  </button>
+</div>
+
+<script src=https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.min.js></script>
+<script>
+const canvas=document.getElementById("c"),renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:!0});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2)),renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene,camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,5e3);
+let targetDist=400,currentDist=400,rotX=.1,rotY=0;
+
+const loader=new THREE.TextureLoader;
+// Fondo espacial con alternativa de respaldo
+const nebulaTex=loader.load(
+  "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/cube/space/px.jpg",
+  function(texture){
+    scene.background=texture;
+  },
+  undefined,
+  function(error){
+    // Crear fondo de estrellas como respaldo
+    const canvas=document.createElement('canvas');
+    canvas.width=canvas.height=1024;
+    const ctx=canvas.getContext('2d');
+    const gradient=ctx.createRadialGradient(512,512,0,512,512,512);
+    gradient.addColorStop(0,'#001122');
+    gradient.addColorStop(0.5,'#000611');
+    gradient.addColorStop(1,'#000000');
+    ctx.fillStyle=gradient;
+    ctx.fillRect(0,0,1024,1024);
+    
+    // Agregar estrellas al canvas
+    ctx.fillStyle='#ffffff';
+    for(let i=0;i<200;i++){
+      const x=Math.random()*1024;
+      const y=Math.random()*1024;
+      const size=Math.random()*2;
+      ctx.beginPath();
+      ctx.arc(x,y,size,0,Math.PI*2);
+      ctx.fill();
+    }
+    
+    const fallbackTexture=new THREE.CanvasTexture(canvas);
+    scene.background=fallbackTexture;
+  }
+);
+
+// Estrellas de fondo
+function createStars(count=3000,radius=4000){
+  const geometry=new THREE.BufferGeometry;
+  const positions=new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    const r=radius*(.2+.8*Math.random());
+    const theta=Math.random()*Math.PI*2;
+    const phi=Math.acos(2*Math.random()-1);
+    positions[i*3]=r*Math.sin(phi)*Math.cos(theta);
+    positions[i*3+1]=r*Math.cos(phi);
+    positions[i*3+2]=r*Math.sin(phi)*Math.sin(theta);
+  }
+  geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
+  scene.add(new THREE.Points(geometry,new THREE.PointsMaterial({size:2,color:16777215,depthWrite:!1})));
+}
+createStars();
+
+// Núcleo central brillante
+const coreMat=new THREE.MeshPhongMaterial({color:0x111199,transparent:!0,opacity:.4,shininess:300});
+const core=new THREE.Mesh(new THREE.SphereGeometry(60,64,64),coreMat);
+scene.add(core);
+
+// Resplandor
+function makeGlow(size=1024,color1="255,160,0",color2="255,60,0"){
+  const canvas=document.createElement("canvas");
+  canvas.width=canvas.height=size;
+  const ctx=canvas.getContext("2d");
+  const gradient=ctx.createRadialGradient(size/2,size/2,size*.05,size/2,size/2,size*.5);
+  gradient.addColorStop(0,"rgba("+color1+",0.8)");
+  gradient.addColorStop(.5,"rgba("+color2+",0.4)");
+  gradient.addColorStop(1,"rgba(0,0,0,0)");
+  ctx.fillStyle=gradient;
+  ctx.fillRect(0,0,size,size);
+  return new THREE.CanvasTexture(canvas);
+}
+
+const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:makeGlow(),transparent:!0,depthWrite:!1}));
+glow.scale.set(800,800,1);
+scene.add(glow);
+
+// Anillos giratorios
+function ringTexture(size=768){
+  const canvas=document.createElement("canvas");
+  canvas.width=canvas.height=size;
+  const ctx=canvas.getContext("2d");
+  ctx.translate(size/2,size/2);
+  const innerR=size*.3;
+  const outerR=size*.48;
+  const gradient=ctx.createRadialGradient(0,0,innerR*.3,0,0,outerR);
+  gradient.addColorStop(0,"rgba(255,255,200,1)");
+  gradient.addColorStop(.3,"rgba(255,160,60,0.9)");
+  gradient.addColorStop(.65,"rgba(255,80,0,0.6)");
+  gradient.addColorStop(1,"rgba(0,0,0,0)");
+  ctx.fillStyle=gradient;
+  ctx.beginPath();
+  ctx.arc(0,0,outerR,0,Math.PI*2);
+  ctx.arc(0,0,innerR,0,Math.PI*2,!0);
+  ctx.closePath();
+  ctx.fill();
+  return new THREE.CanvasTexture(canvas);
+}
+
+const ring1=new THREE.Mesh(new THREE.RingGeometry(80,120,128),new THREE.MeshBasicMaterial({map:ringTexture(),transparent:!0,side:THREE.DoubleSide}));
+const ring2=new THREE.Mesh(new THREE.RingGeometry(140,180,128),new THREE.MeshBasicMaterial({map:ringTexture(),transparent:!0,side:THREE.DoubleSide,opacity:.5}));
+ring1.rotation.x=ring2.rotation.x=Math.PI/2;
+scene.add(ring1);
+scene.add(ring2);
+
+// Movimiento de mouse suave
+let mouseX=0,mouseY=0;
+document.addEventListener("mousemove",(e)=>{
+  mouseX=(e.clientX/window.innerWidth-0.5)*0.1;
+  mouseY=(e.clientY/window.innerHeight-0.5)*0.1;
+});
+
+// Redimensionar
+window.addEventListener("resize",()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+// Animación principal
+let time=0;
+function animate(){
+  requestAnimationFrame(animate);
+  time+=0.01;
+  
+  // Rotación de anillos
+  ring1.rotation.z+=0.003;
+  ring2.rotation.z-=0.002;
+  
+  // Pulsación del resplandor
+  const glowScale=800*(1+0.1*Math.sin(time*0.5));
+  glow.scale.set(glowScale,glowScale,1);
+  
+  // Pulsación del núcleo
+  const coreScale=1+0.08*Math.sin(time*1.5);
+  core.scale.set(coreScale,coreScale,coreScale);
+  
+  // Movimiento suave de cámara
+  rotY+=mouseX*0.02;
+  rotX+=mouseY*0.02;
+  rotX=Math.max(-0.5,Math.min(0.5,rotX));
+  
+  // Rotación automática suave
+  rotY+=0.001;
+  
+  const cosRotX=Math.cos(rotX);
+  const sinRotX=Math.sin(rotX);
+  const cosRotY=Math.cos(rotY);
+  const sinRotY=Math.sin(rotY);
+  
+  camera.position.set(
+    currentDist*sinRotY*cosRotX,
+    currentDist*sinRotX,
+    currentDist*cosRotY*cosRotX
+  );
+  camera.lookAt(0,0,0);
+  
+  renderer.render(scene,camera);
+}
+animate();
+</script>
+</body>
+</html>
